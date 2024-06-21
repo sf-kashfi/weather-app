@@ -6,11 +6,19 @@ import {
 } from "react-router-dom";
 import './index.css'
 import { MaterialUiProvider } from './components/MaterialUiProvider';
+import Weather from './views/Weather/Weather';
+import Root from './routes/root';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>Hello world!</div>,
+    element: <Root />,
+    children: [
+      {
+        path: "/",
+        element: <Weather />,
+      },
+    ],
   },
 ]);
 
