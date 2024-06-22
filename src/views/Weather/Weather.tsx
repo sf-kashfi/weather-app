@@ -5,6 +5,10 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { StyledCard } from "../../style/MaterialUIStyle";
+import {
+  useReverseGeocodeQuery,
+  useIpGeolocationQuery,
+} from "../../services/geolocationApi";
 
 const bull = (
   <Box
@@ -16,22 +20,25 @@ const bull = (
 );
 
 export default function Weather() {
-  const [location, setLocation] = useState<string | null>(null);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: geocodeData, error: geocodeError } = useReverseGeocodeQuery(
+    { latitude: latitude!, longitude: longitude! },
+    { skip: latitude === null || longitude === null }
+  );
+
+  const { data: ipData, error: ipError } = useIpGeolocationQuery(undefined, {
+    skip: latitude !== null && longitude !== null,
+  });
 
   useEffect(() => {
     if (navigator.geolocation) {
-      
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log(position);
-
-          const response = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-          );
-          const data = await response.json();
-          setLocation(data.city);
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
         },
         (err) => {
           console.error(err);
@@ -41,15 +48,23 @@ export default function Weather() {
         }
       );
     } else {
-      fetch("https://ipapi.co/json/")
-        .then((response) => response.json())
-        .then((data) => setLocation(data.city))
-        .catch((err) => {
-          console.error(err);
-          setError("Unable to retrieve location.");
-        });
+      setError("Geolocation is not supported by this browser.");
     }
   }, []);
+
+  useEffect(() => {
+    if (geocodeError) {
+      console.error(geocodeError);
+      setError("Failed to fetch city from coordinates.");
+    }
+  }, [geocodeError]);
+
+  useEffect(() => {
+    if (ipError) {
+      console.error(ipError);
+      setError("Unable to retrieve location.");
+    }
+  }, [ipError]);
 
   return (
     <StyledCard>
@@ -64,8 +79,10 @@ export default function Weather() {
           adjective
         </Typography>
         <div>
-          {location ? (
-            <p>Your city: {location}</p>
+          {geocodeData ? (
+            <p>Your city: {geocodeData.city || "Unknown city"}</p>
+          ) : ipData ? (
+            <p>Your city: {ipData.city || "Unknown city"}</p>
           ) : (
             <p>{error || "Getting location..."}</p>
           )}
