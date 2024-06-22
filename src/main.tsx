@@ -1,13 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import './index.css'
-import { MaterialUiProvider } from './components/MaterialUiProvider';
-import Weather from './views/Weather/Weather';
-import Root from './routes/root';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./index.css";
+import { MaterialUiProvider } from "./components/MaterialUiProvider";
+import Weather from "./views/Weather/Weather";
+import Root from "./routes/root";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 const router = createBrowserRouter([
   {
@@ -22,10 +21,12 @@ const router = createBrowserRouter([
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <MaterialUiProvider>
-      <RouterProvider router={router} />
-    </MaterialUiProvider>
-  </React.StrictMode>,
-)
+    <Provider store={store}>
+      <MaterialUiProvider>
+        <RouterProvider router={router} />
+      </MaterialUiProvider>
+    </Provider>
+  </React.StrictMode>
+);
