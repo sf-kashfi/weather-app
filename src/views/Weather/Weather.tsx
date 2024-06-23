@@ -3,12 +3,16 @@ import Box from "@mui/material/Box";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { StyledCard } from "../../style/MaterialUIStyle";
+import { StyledCard, StyledCardContent } from "../../style/MaterialUIStyle";
 import {
   useReverseGeocodeQuery,
   useIpGeolocationQuery,
 } from "../../services/geolocationApi";
+import {
+  useCurrentWeatherQuery,
+  useForecastWeatherQuery,
+} from "../../services/weatherApi";
+import { Grid, Typography } from "@mui/material";
 
 const bull = (
   <Box
@@ -22,6 +26,7 @@ const bull = (
 export default function Weather() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [location, setLocation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const { data: geocodeData, error: geocodeError } = useReverseGeocodeQuery(
@@ -66,28 +71,82 @@ export default function Weather() {
     }
   }, [ipError]);
 
+  useEffect(() => {
+    if (geocodeData) {
+      setLocation(geocodeData.city);
+    } else if (ipData) {
+      setLocation(ipData.city);
+    }
+  }, [geocodeData, ipData]);
+
+  const { data: currentWeather, error: weatherError } = useCurrentWeatherQuery(
+    { location },
+    { skip: location === null }
+  );
+
+  const { data: forecastWeather, error: forecastError } =
+    useForecastWeatherQuery({ location }, { skip: location === null });
+
+  const formatDate = (): string => {
+    if (!currentWeather) return "";
+
+    const monthNames: string[] = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const lastUpdatedDate = new Date(currentWeather.current.last_updated);
+
+    const day: number = lastUpdatedDate.getDate();
+    const month: string = monthNames[lastUpdatedDate.getMonth()];
+    const year: number = lastUpdatedDate.getFullYear();
+
+    return `${month} ${day}, ${year}`;
+  };
+
+  if (currentWeather) console.log("currentWeather", currentWeather);
+  if (weatherError) console.log("weatherError", weatherError);
+  if (forecastWeather) console.log("forecastWeather", forecastWeather);
+  if (forecastError) console.log("forecastError", forecastError);
+
   return (
     <StyledCard>
-      <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-          Word of the Day
-        </Typography>
-        <Typography variant="h5" component="div">
-          be{bull}nev{bull}o{bull}lent
-        </Typography>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          adjective
-        </Typography>
-        <div>
-          {geocodeData ? (
-            <p>Your city: {geocodeData.city || "Unknown city"}</p>
-          ) : ipData ? (
-            <p>Your city: {ipData.city || "Unknown city"}</p>
-          ) : (
-            <p>{error || "Getting location..."}</p>
-          )}
-        </div>
-      </CardContent>
+      <StyledCardContent>
+        {location ? (
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography> {location || "Unknown city"}</Typography>
+              <Typography>
+                {`${formatDate()}` || forecastWeather || "..."}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>{currentWeather?.current.temp_c}&deg;</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>{currentWeather?.current.condition.text}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>
+                {currentWeather?.current.dewpoint_c}&deg;/
+                {currentWeather?.current.heatindex_c}&deg;
+              </Typography>
+            </Grid>
+          </Grid>
+        ) : (
+          <Typography> {error || "Getting location..."}</Typography>
+        )}
+      </StyledCardContent>
       <CardActions>
         <Button size="small">Learn More</Button>
       </CardActions>
