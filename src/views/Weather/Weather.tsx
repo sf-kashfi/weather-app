@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
 import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import { StyledCard, StyledCardContent } from "../../style/MaterialUIStyle";
 import {
@@ -13,15 +11,10 @@ import {
   useForecastWeatherQuery,
 } from "../../services/weatherApi";
 import { Grid, Typography } from "@mui/material";
-
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
-  >
-    •
-  </Box>
-);
+import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
+import ThunderstormOutlinedIcon from "@mui/icons-material/ThunderstormOutlined";
+import CloudOutlinedIcon from "@mui/icons-material/CloudOutlined";
+import { SvgIconProps } from "@mui/material/SvgIcon";
 
 export default function Weather() {
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -114,7 +107,18 @@ export default function Weather() {
     return `${month} ${day}, ${year}`;
   };
 
-  if (currentWeather) console.log("currentWeather", currentWeather);
+  const getIconByCode = (code: number): React.ReactElement<SvgIconProps> => {
+    if (code >= 1000 && code <= 1100) {
+      return <WbSunnyOutlinedIcon />;
+    } else if (code >= 1101 && code <= 1200) {
+      return <ThunderstormOutlinedIcon />;
+    } else if (code >= 1201 && code <= 1300) {
+      return <CloudOutlinedIcon />;
+    } else {
+      return <div></div>;
+    }
+  };
+
   if (weatherError) console.log("weatherError", weatherError);
   if (forecastWeather) console.log("forecastWeather", forecastWeather);
   if (forecastError) console.log("forecastError", forecastError);
@@ -133,8 +137,9 @@ export default function Weather() {
             <Grid item xs={6}>
               <Typography>{currentWeather?.current.temp_c}&deg;</Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography>{currentWeather?.current.condition.text}</Typography>
+            <Grid item container direction="row" xs={6}>
+              {getIconByCode(currentWeather?.current.condition.code)}
+              <Typography sx={{ pl: 1 }}>{currentWeather?.current.condition.text}</Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography>
