@@ -22,6 +22,17 @@ export default function Weather() {
   const [location, setLocation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  interface ForecastDay {
+    date: string;
+    day: {
+      condition: {
+        code: number;
+      };
+      maxtemp_c: number;
+      mintemp_c: number;
+    };
+  }
+
   const { data: geocodeData, error: geocodeError } = useReverseGeocodeQuery(
     { latitude: latitude!, longitude: longitude! },
     { skip: latitude === null || longitude === null }
@@ -107,6 +118,27 @@ export default function Weather() {
     return `${month} ${day}, ${year}`;
   };
 
+  const formatDay = (date: string): string => {
+    if (!forecastWeather) return "";
+
+    const weekNames: string[] = [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+    ];
+
+    const lastUpdatedDay = new Date(date);
+
+    console.log(date);
+    const dayIndex: number = lastUpdatedDay.getDay();
+
+    return `${weekNames[dayIndex]}`;
+  };
+
   const getIconByCode = (code: number): React.ReactElement<SvgIconProps> => {
     if (code >= 1000 && code <= 1100) {
       return <WbSunnyOutlinedIcon />;
@@ -139,7 +171,9 @@ export default function Weather() {
             </Grid>
             <Grid item container direction="row" xs={6}>
               {getIconByCode(currentWeather?.current.condition.code)}
-              <Typography sx={{ pl: 1 }}>{currentWeather?.current.condition.text}</Typography>
+              <Typography sx={{ pl: 1 }}>
+                {currentWeather?.current.condition.text}
+              </Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography>
@@ -153,7 +187,25 @@ export default function Weather() {
         )}
       </StyledCardContent>
       <CardActions>
-        <Button size="small">Learn More</Button>
+        <Grid
+          container
+          direction="row"
+          justifyContent="space-around"
+          alignItems="center"
+        >
+          {forecastWeather?.forecast.forecastday
+            .slice(1)
+            .map((days: ForecastDay) => (
+              <Grid item sx={{ p: 2 }}>
+                <Typography>{formatDay(days.date)}</Typography>
+                {getIconByCode(days.day.condition.code)}
+                <Typography>
+                  {days.day.mintemp_c}&deg;/
+                  {days.day.maxtemp_c}&deg;
+                </Typography>
+              </Grid>
+            ))}
+        </Grid>
       </CardActions>
     </StyledCard>
   );
