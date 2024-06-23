@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import CardActions from "@mui/material/CardActions";
-import Button from "@mui/material/Button";
 import { StyledCard, StyledCardContent } from "../../style/MaterialUIStyle";
 import {
   useReverseGeocodeQuery,
