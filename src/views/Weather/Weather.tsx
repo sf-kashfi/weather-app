@@ -166,7 +166,7 @@ export default function Weather() {
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography>{currentWeather?.current.temp_c}&deg;</Typography>
+              <Typography variant="h1">{currentWeather?.current.temp_c}&deg;</Typography>
             </Grid>
             <Grid item container direction="row" xs={6}>
               {getIconByCode(currentWeather?.current.condition.code)}
