@@ -157,7 +157,7 @@ export default function Weather() {
     <StyledCard>
       <StyledCardContent>
         {location ? (
-          <Grid container spacing={2}>
+          <Grid container alignItems="center" spacing={2}>
             <Grid item xs={6}>
               <Typography variant="h2">{location || "Unknown city"}</Typography>
               <Typography>

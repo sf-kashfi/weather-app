@@ -16,10 +16,12 @@ export const theme = createTheme({
         ].join(','),
         fontSize: 22,  
         h1: {
-            fontSize: '5.5rem',  
+            fontSize: '5.5rem', 
+            fontWeight: 'bold', 
         },
         h2: {
-            fontSize: '1.5rem',   
+            fontSize: '1.5rem', 
+            fontWeight: 'bold',   
         },
         h3: {
             fontSize: '1.75rem', 
