@@ -12,6 +12,7 @@ export const StyledCard = styled(Card)<CardProps>(() => ({
   color: "#fff",
   overflow: "hidden",
   position: "relative",
+  maxWidth: "40%",
 }));
 
 export const StyledCardContent = styled(CardContent)<CardContentProps>(() => ({

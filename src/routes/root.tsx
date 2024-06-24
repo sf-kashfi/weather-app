@@ -11,9 +11,7 @@ export default function Root() {
       justifyContent="center"
       sx={{ minHeight: "100vh" }}
     >
-      <Grid item xs={4}>
-        <Outlet />
-      </Grid>
+      <Outlet />
     </Grid>
   );
 }
