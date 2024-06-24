@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import CardActions from "@mui/material/CardActions";
-import { StyledCard, StyledCardContent } from "../../style/MaterialUIStyle";
+import { BootstrapInput } from "../../style/MaterialUIStyle";
 import {
   useReverseGeocodeQuery,
   useIpGeolocationQuery,
@@ -9,14 +9,14 @@ import {
   useCurrentWeatherQuery,
   useForecastWeatherQuery,
 } from "../../services/weatherApi";
-import { Grid, Typography } from "@mui/material";
+import { Button, CardHeader, Grid, Typography } from "@mui/material";
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import ThunderstormOutlinedIcon from "@mui/icons-material/ThunderstormOutlined";
 import CloudOutlinedIcon from "@mui/icons-material/CloudOutlined";
 import { SvgIconProps } from "@mui/material/SvgIcon";
-import SearchCity from "../SearchCity/SearchCity";
+import { Formik } from "formik";
 
-export default function Weather() {
+export default function SearchCity() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [location, setLocation] = useState<string | null>(null);
@@ -155,64 +155,51 @@ export default function Weather() {
   if (forecastError) console.log("forecastError", forecastError);
 
   return (
-    <>
-      <SearchCity />
-      <StyledCard>
-        <StyledCardContent>
-          {location ? (
-            <Grid container alignItems="center" spacing={2}>
-              <Grid item xs={6}>
-                <Typography variant="h2">
-                  {location || "Unknown city"}
-                </Typography>
-                <Typography>
-                  {`${formatDate()}` || forecastWeather || "..."}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="h1">
-                  {currentWeather?.current.temp_c}&deg;
-                </Typography>
-              </Grid>
-              <Grid item container direction="row" xs={6}>
-                {getIconByCode(currentWeather?.current.condition.code)}
-                <Typography variant="h2" sx={{ pl: 1 }}>
-                  {currentWeather?.current.condition.text}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="h3">
-                  {currentWeather?.current.dewpoint_c}&deg;/
-                  {currentWeather?.current.heatindex_c}&deg;
-                </Typography>
-              </Grid>
-            </Grid>
-          ) : (
-            <Typography> {error || "Getting location..."}</Typography>
-          )}
-        </StyledCardContent>
-        <CardActions>
-          <Grid
-            container
-            direction="row"
-            justifyContent="space-around"
-            alignItems="center"
+    <Formik
+      initialValues={{ city: "" }}
+      validate={(values) => {
+        const errors = {};
+        if (!values.city) {
+          errors.city = "Required";
+        }
+        return errors;
+      }}
+      onSubmit={(values, { setSubmitting }) => {
+        setTimeout(() => {
+          alert(JSON.stringify(values, null, 2));
+          setSubmitting(false);
+        }, 400);
+      }}
+    >
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        isSubmitting,
+      }) => (
+        <form onSubmit={handleSubmit}>
+          <BootstrapInput
+            type="text"
+            name="name"
+            onChange={handleChange}
+            onBlur={handleBlur}
+            value={values.city}
+          />
+          {errors.city && touched.city && errors.city}
+
+          <Button
+            variant="contained"
+            size="small"
+            type="submit"
+            disabled={isSubmitting}
           >
-            {forecastWeather?.forecast.forecastday
-              .slice(1)
-              .map((days: ForecastDay) => (
-                <Grid item>
-                  <Typography>{formatDay(days.date)}</Typography>
-                  {getIconByCode(days.day.condition.code)}
-                  <Typography>
-                    {days.day.mintemp_c}&deg;/
-                    {days.day.maxtemp_c}&deg;
-                  </Typography>
-                </Grid>
-              ))}
-          </Grid>
-        </CardActions>
-      </StyledCard>
-    </>
+            Search
+          </Button>
+        </form>
+      )}
+    </Formik>
   );
 }
