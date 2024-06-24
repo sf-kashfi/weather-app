@@ -151,7 +151,6 @@ export default function Weather() {
   };
 
   if (weatherError) console.log("weatherError", weatherError);
-  if (forecastWeather) console.log("forecastWeather", forecastWeather);
   if (forecastError) console.log("forecastError", forecastError);
 
   return (
@@ -160,22 +159,24 @@ export default function Weather() {
         {location ? (
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Typography> {location || "Unknown city"}</Typography>
+              <Typography variant="h2">{location || "Unknown city"}</Typography>
               <Typography>
                 {`${formatDate()}` || forecastWeather || "..."}
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h1">{currentWeather?.current.temp_c}&deg;</Typography>
+              <Typography variant="h1">
+                {currentWeather?.current.temp_c}&deg;
+              </Typography>
             </Grid>
             <Grid item container direction="row" xs={6}>
               {getIconByCode(currentWeather?.current.condition.code)}
-              <Typography sx={{ pl: 1 }}>
+              <Typography variant="h2" sx={{ pl: 1 }}>
                 {currentWeather?.current.condition.text}
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography>
+              <Typography variant="h3">
                 {currentWeather?.current.dewpoint_c}&deg;/
                 {currentWeather?.current.heatindex_c}&deg;
               </Typography>
@@ -195,7 +196,7 @@ export default function Weather() {
           {forecastWeather?.forecast.forecastday
             .slice(1)
             .map((days: ForecastDay) => (
-              <Grid item sx={{ p: 2 }}>
+              <Grid item>
                 <Typography>{formatDay(days.date)}</Typography>
                 {getIconByCode(days.day.condition.code)}
                 <Typography>
